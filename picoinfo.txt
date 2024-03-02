@@ -1,0 +1,44 @@
+Waveshare Watch RP2040
+======================
+
+https://community.element14.com/products/raspberry-pi/b/blog/posts/working-with-pi-pico-c-c-projects-easily-a-docker-approach
+
+https://github.com/AppacYazilim/PicoDevEnv
+
+https://www.waveshare.com/wiki/RP2040-Touch-LCD-1.28
+
+https://github.com/lvgl/lvgl/tree/master
+
+https://lvgl.io/tools/imageconverter
+
+
+Docker
+------
+
+Initial install:
+
+docker run -d -it --name pc1 --mount type=bind,source=${PWD},target=/home/dev lukstep/raspberry-pi-pico-sdk:latest
+
+Connect:
+
+docker exec -it pc1 /bin/sh
+
+After reboot:
+
+docker start pc1
+docker exec -u 1000:1000 -it pc1 /bin/sh
+
+Extra:
+
+export PICO_EXTRAS_PATH=/home/dev/pico/pico-extras
+
+Build example:
+
+cd /home/dev/pico/cdjwatch/build
+cmake ..
+make
+
+Copy file from docker to host:
+
+docker cp pc1:/home/dev/pico/sound_fx_mixer/build/sound_fx_mixer.uf2 .
+
