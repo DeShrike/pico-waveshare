@@ -26,7 +26,7 @@ docker exec -it pc1 /bin/sh
 After reboot:
 
 docker start pc1
-docker exec -u 1000:1000 -it pc1 /bin/sh
+docker exec -it pc1 /bin/sh
 
 Extra:
 
