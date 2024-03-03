@@ -32,10 +32,9 @@ include_directories(./lib/LCD)
 include_directories(./lib/Touch)
 
 add_executable(canvas
-                main.c
-                canvas.c
-                framework.c
-                )
+               main.c
+               device.c
+              )
 
 pico_set_program_name(canvas  "Canvas Test")
 pico_set_program_version(canvas "0.1")

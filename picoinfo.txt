@@ -42,3 +42,6 @@ Copy file from docker to host:
 
 docker cp pc1:/home/dev/pico/sound_fx_mixer/build/sound_fx_mixer.uf2 .
 
+Upload to Pico:
+
+picotool load -F canvastest.uf2 && picotool reboot -F
