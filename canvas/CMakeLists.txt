@@ -40,7 +40,7 @@ pico_set_program_name(canvas  "Canvas Test")
 pico_set_program_version(canvas "0.1")
 
 pico_enable_stdio_uart(canvas 0)
-pico_enable_stdio_usb(canvas 0)
+pico_enable_stdio_usb(canvas 1)
 
 # Add the standard library to the build
 

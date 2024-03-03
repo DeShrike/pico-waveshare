@@ -43,12 +43,24 @@ typedef struct {
     uint16_t h;
 } rect_t;
 
-typedef void (*flush_display_callback)(const area_t* area, color16_t* color_p);
+#define INPUT_MODE_NONE 0
+#define INPUT_MODE_TAP 1
+#define INPUT_MODE_HOLD 2
+
+typedef struct {
+    uint16_t x;
+    uint16_t y;
+    int mode;
+} input_t;
+
+// typedef void (*flush_display_callback)(const area_t* area, color16_t* color_p);
 
 void Device_Init(void);
 void Device_Cleanup(void);
 void Device_Delay(int ms);
-void Device_Flush_Display(int x, int y, int w, int h, uint16_t* pixels);
+void Device_Backlight(bool state);
+bool Device_GetInput(input_t* data);
+// void Device_Flush_Display(int x, int y, int w, int h, uint16_t* pixels);
 
 #define CANVAS_WIDTH	DEVICE_WIDTH
 #define CANVAS_HEIGHT	DEVICE_HEIGHT
@@ -72,4 +84,4 @@ void Canvas_Fill_Rect_R(rect_t* area, uint16_t color);
 }
 #endif
 
-#endif
+#endif  // _DEVICE_H_

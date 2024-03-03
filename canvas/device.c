@@ -48,14 +48,26 @@ static void dma_handler(void)
 function:   Touch interrupt handler
 parameter:
 ********************************************************************************/
+static uint32_t last_touch_ms = 0xFFFFFFFF; 
 static void touch_callback(uint gpio, uint32_t events)
 {
     if (gpio == Touch_INT_PIN)
     {
-        CST816S_Get_Point();
-        ts_x = Touch_CTS816.x_point;
-        ts_y = Touch_CTS816.y_point;
-        ts_touched = 1;
+        absolute_time_t at = get_absolute_time();
+        uint32_t tt = to_ms_since_boot(at);
+        if (tt - last_touch_ms > 150)
+        {
+            CST816S_Get_Point();
+            ts_x = Touch_CTS816.x_point;
+            ts_y = Touch_CTS816.y_point;
+            
+            CST816S_Mode mode = Touch_CTS816.mode;
+            
+            ts_touched = 1;
+            printf("Touch: (%d,%d)  %d    %d    %d  Diff: %d \n", ts_x, ts_y, mode, last_touch_ms, tt, tt - last_touch_ms);
+            
+            last_touch_ms = tt;
+        }
     }
 }
 
@@ -95,7 +107,7 @@ void Device_Init(void)
     init_devices();
 
     // Init Timer
-    add_repeating_timer_ms(5, repeating_loop_timer_callback, NULL, &loop_timer);
+    // add_repeating_timer_ms(5, repeating_loop_timer_callback, NULL, &loop_timer);
 
     // Enable touch IRQ
     DEV_IRQ_SET(Touch_INT_PIN, GPIO_IRQ_EDGE_RISE, &touch_callback);
@@ -106,6 +118,11 @@ void Device_Init(void)
     irq_set_enabled(DMA_IRQ_0, true);
 
     Canvas_Init();
+}
+
+void Device_Backlight(bool state)
+{
+    DEV_SET_PWM(state ? 100 : 25);
 }
 
 /********************************************************************************
@@ -124,6 +141,15 @@ parameter:
 void Device_Delay(int ms)
 {
     DEV_Delay_ms(ms);
+}
+
+bool Device_GetInput(input_t* data)
+{
+
+
+    data->x = ts_x;
+    data->y = ts_y;
+    data->mode = INPUT_MODE_NONE;
 }
 
 /*
@@ -191,7 +217,6 @@ void Canvas_Fill_Rect(int x, int y, int w, int h, uint16_t color)
     };
     Canvas_Fill_Rect_R(&r, color);
 }
-
 
 void Canvas_Init()
 {
