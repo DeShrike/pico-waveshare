@@ -5,43 +5,11 @@
 extern "C" {
 #endif
 
+#include "canvas.h"
+
 #define DEVICE_WIDTH 240
 #define DEVICE_HEIGHT 240
 
-/*
-typedef union {
-    struct {
-        uint16_t green_l : 3;
-        uint16_t blue : 5;
-        uint16_t red : 5;
-        uint16_t green_h : 3;
-    } ch;
-    uint16_t full;
-} color16_t;
-*/
-
-typedef uint16_t color16_t;
-typedef int16_t coord_t;
-
-typedef struct {
-    coord_t x;
-    coord_t y;
-} point_t;
-
-/** Represents an area of the screen.*/
-typedef struct {
-    coord_t x1;
-    coord_t y1;
-    coord_t x2;
-    coord_t y2;
-} area_t;
-
-typedef struct {
-    coord_t x;
-    coord_t y;
-    uint16_t w;
-    uint16_t h;
-} rect_t;
 
 #define INPUT_MODE_NONE 0
 #define INPUT_MODE_TAP 1

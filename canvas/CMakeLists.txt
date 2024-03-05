@@ -34,6 +34,7 @@ include_directories(./lib/Touch)
 add_executable(canvas
                main.c
                device.c
+               canvas.c
               )
 
 pico_set_program_name(canvas  "Canvas Test")

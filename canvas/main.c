@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "device.h"
+#include "canvas.h"
 
 uint16_t colors[] = { WHITE, RED, GREEN, BLUE, GRAY, YELLOW, CYAN, MAGENTA };
 int color_count = sizeof(colors) / sizeof(colors[0]);
@@ -22,6 +23,8 @@ typedef struct
 } vehicle;
 
 vehicle vehicles[VEHICLE_COUNT];
+int touchx = 0;
+int touchy = 0;
 
 void init(void)
 {
@@ -41,6 +44,17 @@ void init(void)
 
 void update(void)
 {
+    input_t touch;
+    Device_GetInput(&touch);
+    if (touch.mode == INPUT_MODE_TAP)
+    {
+        touchx = touch.x;
+        touchy = touch.y;
+        
+        printf("Touched\n");
+        
+    }
+
     for (int i = 0; i < VEHICLE_COUNT; ++i)
     {
         vehicles[i].ox = vehicles[i].x;
@@ -98,6 +112,13 @@ void draw(void)
 
         Canvas_Fill_Rect(vehicles[i].x, vehicles[i].y, w, h, colors[vehicles[i].c]);
     }
+    
+    char temp[20];
+    sprintf(temp, "%dx%d ", vehicles[0].x, vehicles[0].y);
+    Canvas_Write_Ascii(temp, 50, 50, colors[vehicles[0].c], BLACK);
+
+    sprintf(temp, "%dx%d ", touchx, touchy);
+    Canvas_Write_Ascii(temp, 50, 100, WHITE, BLACK);
 }
 
 bool bl = true;
@@ -135,6 +156,8 @@ int main(void)
     {
         update();
         draw();
+        
+
 
         Canvas_Flush();
         Device_Delay(50);
@@ -149,3 +172,20 @@ int main(void)
     Device_Cleanup();
     return 0;
 }
+
+
+/*
+
+static uint8_t reverse(uint8_t b) 
+{
+   b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+   b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+   b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+   return b;
+}
+
+https://github.com/shyd/waveshare-pico-lcd2/blob/main/c/lib/Fonts/font12.c
+https://github.com/HEJOK254/Pico-ResTouch-LCD-2.8-Horizontal-Fix/blob/main/lib/font/font8.c
+
+
+*/

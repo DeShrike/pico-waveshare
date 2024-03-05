@@ -21,7 +21,7 @@ static struct repeating_timer loop_timer;
 function:	Refresh image by transferring the color data to the SPI bus by DMA
 parameter:
 ********************************************************************************/
-static void disp_flush_cb(const area_t* area, color16_t* color_p)
+/*static*/ void display_flush(const area_t* area, color16_t* color_p)
 {
     LCD_1IN28_SetWindows(area->x1, area->y1, area->x2 , area->y2);
     dma_channel_configure(dma_tx,
@@ -145,11 +145,10 @@ void Device_Delay(int ms)
 
 bool Device_GetInput(input_t* data)
 {
-
-
     data->x = ts_x;
     data->y = ts_y;
-    data->mode = INPUT_MODE_NONE;
+    data->mode = ts_touched == 1 ? INPUT_MODE_TAP : INPUT_MODE_NONE;
+    ts_touched = 0;
 }
 
 /*
@@ -173,51 +172,3 @@ static void delay_loop(volatile uint32_t count)
 */
 /***********************************************************************/
 
-static color16_t canvas_data[CANVAS_WIDTH * CANVAS_HEIGHT] = {0};
-// static flush_display_callback flush_display_cb;
-
-void Canvas_Flush()
-{
-    area_t area = {
-        .x1 = 0,
-        .y1 = 0,
-        .x2 = CANVAS_WIDTH - 1,
-        .y2 = CANVAS_HEIGHT - 1
-    };
-
-    disp_flush_cb(&area, canvas_data);
-}
-
-void Canvas_Fill_Rect_R(rect_t* rect, uint16_t color)
-{
-    for (uint16_t y = rect->y; y < rect->y + rect->h; ++y)
-    {
-        if (y >= 0 && y < CANVAS_HEIGHT)
-        {
-            for (uint16_t x = rect->x; x < rect->x + rect->w; ++x)
-            {
-                if (x >= 0 && x < CANVAS_WIDTH)
-                {
-                    int ix = y * CANVAS_WIDTH + x;
-                    // canvas_data[ix].full = color;
-                    canvas_data[ix] = color;
-                }
-            }
-        }
-    } 
-}
-
-void Canvas_Fill_Rect(int x, int y, int w, int h, uint16_t color)
-{
-    rect_t r = {
-        .x = x,
-        .y = y,
-        .w = w,
-        .h = h
-    };
-    Canvas_Fill_Rect_R(&r, color);
-}
-
-void Canvas_Init()
-{
-}
