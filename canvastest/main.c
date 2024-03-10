@@ -367,7 +367,7 @@ int main(void)
 
         Canvas_Flush();
         device_delay(50);
-        // tight_loop_contents();
+        //tight_loop_contents();
 
         //at = get_absolute_time();
         //uint32_t time_since_boot = to_ms_since_boot(at);
