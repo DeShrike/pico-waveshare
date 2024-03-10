@@ -3,7 +3,10 @@
 #include "device.h"
 #include "canvas.h"
 
-uint16_t colors[] = { BLACK, WHITE, BLUE, GRAY, LIME, GREEN, EMERALD, TEAL, CYAN, COBALT, INDIGO, VIOLET, PINK, MAGENTA, CRIMSON, RED, ORANGE, YELLOW, BROWN, OLIVE, STEEL, MAUVE, TAUPE };
+uint16_t colors[] = { 
+        BLACK, WHITE, BLUE, LIME, GREEN, EMERALD, TEAL, CYAN,
+        COBALT, INDIGO, VIOLET, PINK, MAGENTA, CRIMSON, RED,
+        ORANGE, YELLOW, BROWN, OLIVE, STEEL, MAUVE, TAUPE, GRAY1, GRAY2, GRAY3 };
 int color_count = sizeof(colors) / sizeof(colors[0]);
 
 input_t touch;
@@ -14,7 +17,7 @@ uint16_t tx = CANVAS_WIDTH / 2;
 uint16_t ty = CANVAS_HEIGHT / 2;
 bool stopped = false;
 
-#define SCREEN_COUNT    6
+#define SCREEN_COUNT    7
 int screen = 0;
 
 #define LINE_COUNT  40
@@ -302,6 +305,26 @@ void draw(void)
         {
             Canvas_Fill_Rect(x, y, w, h, GBRG(0, 0, b));
             x += w;
+        }
+    }
+    else if (screen == 6)
+    {
+        int s = 40;
+        int g = 5;
+        int ox = (CANVAS_WIDTH - (g * s)) / 2;
+        int oy = (CANVAS_HEIGHT - (g * s)) / 2;
+        for (int i = 0; i < g * g; i++)
+        {
+            int xi = i % g;
+            int yi = i / g;
+            int x = ox + (xi * s);
+            int y = oy + (yi * s);
+            if (i < color_count)
+            {
+                Canvas_Fill_Rect(x, y, s, s, colors[i]);
+            }
+
+            Canvas_Draw_Rect(x, y, x + s - 1, y + s - 1, WHITE);
         }
     }
 }

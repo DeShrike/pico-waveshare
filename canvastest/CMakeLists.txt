@@ -16,7 +16,7 @@ if (PICO_SDK_VERSION_STRING VERSION_LESS "1.4.0")
   message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.4.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
-project(canvas C CXX ASM)
+project(canvastest C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
@@ -31,23 +31,23 @@ include_directories(./lib/Config)
 include_directories(./lib/LCD)
 include_directories(./lib/Touch)
 
-add_executable(canvas
+add_executable(canvastest
                main.c
                device.c
                canvas.c
               )
 
-pico_set_program_name(canvas  "Canvas Test")
-pico_set_program_version(canvas "0.1")
+pico_set_program_name(canvastest  "Canvas Test")
+pico_set_program_version(canvastest "0.1")
 
-pico_enable_stdio_uart(canvas 0)
-pico_enable_stdio_usb(canvas 1)
+pico_enable_stdio_uart(canvastest 0)
+pico_enable_stdio_usb(canvastest 1)
 
 # Add the standard library to the build
 
 add_compile_options(-O2)
 
-target_link_libraries(canvas
+target_link_libraries(canvastest
                         LCD
                         Touch
                         Config
@@ -58,8 +58,8 @@ target_link_libraries(canvas
                         )
 
 # Add the standard include files to the build
-target_include_directories(canvas   PRIVATE
+target_include_directories(canvastest   PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}
 )
 
-pico_add_extra_outputs(canvas)
+pico_add_extra_outputs(canvastest)

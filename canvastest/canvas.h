@@ -61,10 +61,14 @@ typedef struct {
 //#define RED         0x00F8
 //#define GREEN       0xE007
 #define BLUE        0x1F00
-#define GRAY        0x1084
 //#define YELLOW      0xE0FF
 //#define CYAN        0xFF07
 //#define MAGENTA     0x1FF8
+
+#define GRAY    0x1084
+#define GRAY1   0x0842
+#define GRAY2   0x1084
+#define GRAY3   0x18C6
 
 #define LIME    0x20A6
 #define GREEN   0x4265
