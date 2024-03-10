@@ -2,6 +2,12 @@
 
 Experiment with the RP2040 based board with a round 240x240 pixel display.
 
+https://www.waveshare.com/rp2040-touch-lcd-1.28.htm
+
+RP2040-Touch-LCD-1.28
+
+24580
+
 - Linux (tested on Ubuntu 18.04.1)
 - C / C++
 - Command line
@@ -28,7 +34,7 @@ To use a Docker image, follow these steps:
 
 ```console
 cd <your projects folder>
-mkdir pico
+mkdir pico-waveshare
 docker run -d -it --name pc1 --mount type=bind,source=${PWD},target=/home/dev lukstep/raspberry-pi-pico-sdk:latest
 ```
 
@@ -64,5 +70,5 @@ make
 The build folder should now contain a file called cdjwatch.uf2.
 Copy this file to the device.
 
-Follow the same steps for the other examples: blink, canvas and lvgltest.
+Follow the same steps for the other examples: blink, canvastest and lvgltest.
 
