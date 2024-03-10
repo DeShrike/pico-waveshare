@@ -1,6 +1,6 @@
 # Waveshare RP2040 Round Touch LCD 1.28"
 
-Experiment with the RP2040 based board with a round 240x240 pixel display.
+Experiment with the RP2040 based board with a round 240x240 pixel display.  
 
 https://www.waveshare.com/rp2040-touch-lcd-1.28.htm
 
@@ -22,11 +22,11 @@ cd <your projects folder>
 git clone https://www.github.com/deshrike/pico-waveshare
 cd pico-waveshare
 git submudule update --init
-```console
+```
 
 ## Pico SDK
 
-You can compile the Pico programs locally, or using a Docker image.
+You can compile the Pico programs locally, or using Docker.
 
 To compile locally, install the Pico SDK.
 
