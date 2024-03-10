@@ -158,7 +158,7 @@ void DEV_SET_PWM(uint8_t Value)
  **/
 void DEV_IRQ_SET(uint gpio, uint32_t events, gpio_irq_callback_t callback)
 {
-    gpio_set_irq_enabled_with_callback(gpio,events,true,callback);
+    gpio_set_irq_enabled_with_callback(gpio, events, true, callback);
 }
 
 /******************************************************************************
@@ -172,10 +172,10 @@ uint8_t DEV_Module_Init(void)
     set_sys_clock_khz(PLL_SYS_KHZ, true);
     clock_configure(
         clk_peri,
-        0,                                                
+        0,
         CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS, 
-        PLL_SYS_KHZ * 1000,                               
-        PLL_SYS_KHZ * 1000                              
+        PLL_SYS_KHZ * 1000,
+        PLL_SYS_KHZ * 1000
     );
 
     stdio_init_all();

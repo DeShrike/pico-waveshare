@@ -12,6 +12,7 @@ static int16_t encoder_diff;
 // Touch Position
 static uint16_t ts_x;
 static uint16_t ts_y;
+static uint8_t ts_gesture;
 static int ts_touched = 0;
 
 // Timer
@@ -57,15 +58,22 @@ static void touch_callback(uint gpio, uint32_t events)
         uint32_t tt = to_ms_since_boot(at);
         if (tt - last_touch_ms > 150)
         {
-            CST816S_Get_Point();
-            ts_x = Touch_CTS816.x_point;
-            ts_y = Touch_CTS816.y_point;
-            
-            CST816S_Mode mode = Touch_CTS816.mode;
-            
+            uint8_t g =  CST816S_Get_Gesture();
+            ts_gesture = g;
+            // printf("Gesture: %d    %d    %d  Diff: %d Events: %d \n", g, last_touch_ms, tt, tt - last_touch_ms, events);
+
+            if (g == GESTURE_CLICK)
+            {
+                CST816S_Get_Point();
+                ts_x = Touch_CTS816.x_point;
+                ts_y = Touch_CTS816.y_point;
+
+                CST816S_Mode mode = Touch_CTS816.mode;
+
+                // printf("Touch: (%d,%d)  %d    %d    %d  Diff: %d Events: %d \n", ts_x, ts_y, mode, last_touch_ms, tt, tt - last_touch_ms, events);
+            }
+
             ts_touched = 1;
-            printf("Touch: (%d,%d)  %d    %d    %d  Diff: %d \n", ts_x, ts_y, mode, last_touch_ms, tt, tt - last_touch_ms);
-            
             last_touch_ms = tt;
         }
     }
@@ -93,7 +101,8 @@ static int init_devices()
     DEV_SET_PWM(100);
 
     // Init touch screen
-    CST816S_init(CST816S_Point_Mode);
+    // CST816S_init(CST816S_Point_Mode);
+    CST816S_init(CST816S_Gesture_Mode);
 
     return 0;
 }
@@ -102,7 +111,7 @@ static int init_devices()
 function:   Initialize
 parameter:
 ********************************************************************************/
-void Device_Init(void)
+void device_init(void)
 {
     init_devices();
 
@@ -120,7 +129,7 @@ void Device_Init(void)
     Canvas_Init();
 }
 
-void Device_Backlight(bool state)
+void device_backlight(bool state)
 {
     DEV_SET_PWM(state ? 100 : 25);
 }
@@ -129,25 +138,37 @@ void Device_Backlight(bool state)
 function:   Cleanup
 parameter:
 ********************************************************************************/
-void Device_Cleanup(void)
+void device_cleanup(void)
 {
     DEV_Module_Exit();
 }
 
 /********************************************************************************
-function:   Cleanup
+function:   Delay
 parameter:
 ********************************************************************************/
-void Device_Delay(int ms)
+void device_delay(int ms)
 {
     DEV_Delay_ms(ms);
 }
 
-bool Device_GetInput(input_t* data)
+bool device_getinput(input_t* data)
 {
     data->x = ts_x;
     data->y = ts_y;
-    data->mode = ts_touched == 1 ? INPUT_MODE_TAP : INPUT_MODE_NONE;
+    data->touched = ts_touched == 1;
+
+    data->gesture = ts_touched ? ts_gesture : GESTURE_NONE;
+    /*
+    if (ts_gesture == GESTURE_CLICK)
+    {
+        data->gesture = ts_touched ? ts_gesture : GESTURE_NONE;
+    }
+    else
+    {
+        data->gesture = ts_gesture;
+    }*/
+
     ts_touched = 0;
 }
 

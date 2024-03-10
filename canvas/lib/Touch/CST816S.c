@@ -67,7 +67,7 @@ void CST816S_Set_Mode(uint8_t mode)
     if (mode == CST816S_Point_Mode)
     {
         // 
-        CST816S_I2C_Write(CST816_IrqCtl, 0x41);    
+        CST816S_I2C_Write(CST816_IrqCtl, 0x41);
         Touch_CTS816.x_point = 0;
         Touch_CTS816.y_point = 0;
         Touch_CTS816.mode = mode;
@@ -84,7 +84,6 @@ void CST816S_Set_Mode(uint8_t mode)
     {
         CST816S_I2C_Write(CST816_IrqCtl, 0X71);
     }
-        
 }
 
 uint8_t CST816S_init(uint8_t mode)

@@ -78,13 +78,14 @@ typedef enum
 	CST816S_Gesture_Right,
 	CST816S_Gesture_Click,
 	CST816S_Gesture_Double_Click = 0x0b,
-	CST816S_Gesture_Long_Press=0x0c,
+	CST816S_Gesture_Long_Press = 0x0c,
 } CST816S_Gesture;
 
 typedef struct
 {
 	uint16_t x_point;
 	uint16_t y_point;
+	uint8_t gesture;
 	CST816S_Mode mode;
 } CST816S;
 

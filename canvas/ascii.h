@@ -1,7 +1,9 @@
 #ifndef _ASCII_H_
 #define _ASCII_H_
 
-#define ASCII_WIDTH 5
+#define ASCII_ZOOM      3
+#define ASCII_HEIGHT    8
+#define ASCII_WIDTH     6
 
 const uint8_t ascii[][ASCII_WIDTH] =
 {
