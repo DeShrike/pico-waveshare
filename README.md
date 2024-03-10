@@ -6,7 +6,7 @@ https://www.waveshare.com/rp2040-touch-lcd-1.28.htm
 
 RP2040-Touch-LCD-1.28
 
-24580
+SKU: 24580
 
 - Linux (tested on Ubuntu 18.04.1)
 - C / C++
@@ -62,7 +62,9 @@ cd /home/dev/pico-waveshare
 cd /home/dev/pico-waveshare  (if using Docker)
 cd <your projects folder>/pico-waveshare (if you have installed the Pico SDK locally)
 
-cd cdjwatch/build
+cd cdjwatch
+mkdir build
+cd build
 cmake ..
 make
 ```
@@ -71,4 +73,24 @@ The build folder should now contain a file called cdjwatch.uf2.
 Copy this file to the device.
 
 Follow the same steps for the other examples: blink, canvastest and lvgltest.
+
+## Examples
+
+### blink
+
+Pico example to blink the on-board LED (Backlight).
+
+### lvgltest
+
+Example from Waveshare. LVGL, Touch, LCD, Sensors.
+
+### cdjwatch
+
+Simple LVGL test showing some text and a logo.
+
+### canvastest
+
+My own easy framework to write to the screen and read touch input.
+
+Drawing primitives: rectangle, circles, lines, ascii font, ...
 
