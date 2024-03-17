@@ -17,7 +17,18 @@ uint16_t tx = CANVAS_WIDTH / 2;
 uint16_t ty = CANVAS_HEIGHT / 2;
 bool stopped = false;
 
-#define SCREEN_COUNT    7
+uint16_t angle1 = 0;
+uint16_t angle2 = 0;
+uint16_t angle3 = 0;
+uint16_t angle4 = 0;
+uint16_t angle5 = 0;
+uint16_t anglestep1 = 10;
+uint16_t anglestep2 = 8;
+uint16_t anglestep3 = 6;
+uint16_t anglestep4 = 4;
+uint16_t anglestep5 = 2;
+
+#define SCREEN_COUNT   10
 int screen = 0;
 
 #define LINE_COUNT  40
@@ -196,6 +207,48 @@ void update(void)
             }
         }
     } // Screen 1
+
+    if (screen == 8)
+    {
+        angle1 += anglestep1;
+        angle2 += anglestep2;
+        angle3 += anglestep3;
+        angle4 += anglestep4;
+        angle5 += anglestep5;
+        if (angle1 > 360)
+        {
+            angle1 = 0;
+        }
+
+        if (angle2 > 360)
+        {
+            angle2 = 0;
+        }
+
+        if (angle3 > 360)
+        {
+            angle3 = 0;
+        }
+
+        if (angle4 > 360)
+        {
+            angle4 = 0;
+        }
+
+        if (angle5 > 360)
+        {
+            angle5 = 0;
+        }
+    } // Screen 8
+
+    if (screen == 9)
+    {
+        angle1 += 1;
+        if (angle1 > 360)
+        {
+            angle1 = 0;
+        }
+    } // Screen 9
 }
 
 void draw(void)
@@ -326,6 +379,52 @@ void draw(void)
 
             Canvas_Draw_Rect(x, y, x + s - 1, y + s - 1, WHITE);
         }
+    }
+    else if (screen == 7)
+    {
+        Canvas_Fill_Round_Rect(40, 80, 110, 50, 10, STEEL);
+        Canvas_Draw_Round_Rect(100, 70, 90, 50, 10, WHITE);
+        Canvas_Draw_Round_Rect(50, 50, 150, 145, 20, RED);
+        Canvas_Draw_Round_Rect(70, 100, 70, 70, 30, YELLOW);
+        Canvas_Draw_Circle(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH / 3, COBALT);
+    }
+    else if (screen == 8)
+    {
+        uint16_t cx = CANVAS_WIDTH / 2;
+        uint16_t cy = CANVAS_HEIGHT / 2;
+
+        float r = 110;
+        Canvas_Draw_Arc(cx, cy, 0, angle1, r, INDIGO);
+        r -= 10;
+        Canvas_Draw_Arc(cx, cy, 0, angle2, r, ORANGE);
+        r -= 10;
+        Canvas_Draw_Arc(cx, cy, 0, angle3, r, GREEN);
+        r -= 10;
+        Canvas_Draw_Arc(cx, cy, 0, angle4, r, PINK);
+        r -= 10;
+        Canvas_Draw_Arc(cx, cy, 0, angle5, r, BROWN);
+    }
+    else if (screen == 9)
+    {
+        uint16_t cx = CANVAS_WIDTH / 2;
+        uint16_t cy = CANVAS_HEIGHT / 2;
+
+        //uint16_t gray = RGB2GBRG(24, 24, 25);
+        uint16_t r = 100;
+        uint16_t thick = 0;
+        for (uint16_t i = r - thick; i <= r + thick; ++i)
+        {
+            Canvas_Draw_Arc(cx, cy, 0, angle1, i, EMERALD);
+        }
+
+        float w = 100;
+        float h = 50;
+        Canvas_Fill_Round_Rect(cx - w / 2, cy - h / 2, w, h, 10, GRAY1);
+        Canvas_Draw_Round_Rect(cx - w / 2, cy - h / 2, w, h, 10, GRAY);
+
+        char temp[20];
+        sprintf(temp, "%d", angle1);
+        Canvas_Write_Ascii_Centered(temp, cx, cy, YELLOW, BLACK);
     }
 }
 

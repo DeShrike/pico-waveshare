@@ -1,4 +1,5 @@
 #include "pico/stdlib.h"
+#include <math.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -6,6 +7,8 @@
 #include "canvas.h"
 
 static color16_t canvas_data[CANVAS_WIDTH * CANVAS_HEIGHT] = { 0 };
+static float sinus[CIRCLE_STEPS] = { 0 };
+static float cosinus[CIRCLE_STEPS] = { 0 };
 
 static area_t fullarea = {
     .x1 = 0,
@@ -118,8 +121,18 @@ void Canvas_Draw_HLine(uint16_t x1, uint16_t x2, uint16_t y, uint16_t color)
         return;
     }
     
+    if (y < 0 || y >= CANVAS_HEIGHT)
+    {
+        return;
+    }
+
     for (uint16_t x = x1; x <= x2; ++x)
     {
+        if (x < 0 || x >= CANVAS_WIDTH)
+        {
+            return;
+        }
+
         canvas_data[INDEX(x, y)] = color;
     }
 }
@@ -131,8 +144,18 @@ void Canvas_Draw_VLine(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color)
         return;
     }
 
+    if (x < 0 || x >= CANVAS_WIDTH)
+    {
+        return;
+    }
+    
     for (uint16_t y = y1; y <= y2; ++y)
     {
+        if (y < 0 || y >= CANVAS_HEIGHT)
+        {
+            return;
+        }
+        
         canvas_data[INDEX(x, y)] = color;
     }
 }
@@ -298,6 +321,111 @@ void Canvas_Fill_Circle(uint16_t xc, uint16_t yc, uint16_t r, uint16_t color)
     }
 }
 
+void Canvas_Draw_Rounded_Corner(uint16_t x0, uint16_t y0, uint16_t r, uint8_t corner, uint16_t color)
+{
+    int16_t f = 1 - r;
+    int16_t ddF_x = 1;
+    int16_t ddF_y = -2 * r;
+    int16_t x = 0;
+    int16_t y = r;
+
+    while (x < y)
+    {
+        if (f >= 0)
+        {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        
+        x++;
+        ddF_x += 2;
+        f += ddF_x;
+        
+        if (corner & 0x4)
+        {
+            canvas_data[INDEX(x0 + x, y0 + y)] = color;
+            canvas_data[INDEX(x0 + y, y0 + x)] = color;
+        }
+        else if (corner & 0x2)
+        {
+            canvas_data[INDEX(x0 + x, y0 - y)] = color;
+            canvas_data[INDEX(x0 + y, y0 - x)] = color;
+        }
+        else if (corner & 0x8)
+        {
+            canvas_data[INDEX(x0 - y, y0 + x)] = color;
+            canvas_data[INDEX(x0 - x, y0 + y)] = color;
+        }
+        else if (corner & 0x1)
+        {
+            canvas_data[INDEX(x0 - y, y0 - x)] = color;
+            canvas_data[INDEX(x0 - x, y0 - y)] = color;
+        }
+    }
+}
+
+void Canvas_Fill_Circle_Helper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername, int16_t delta, uint16_t color)
+{
+    int16_t f  = 1 - r;
+    int16_t ddF_x = 1;
+    int16_t ddF_y = -2 * r;
+    int16_t x = 0;
+    int16_t y = r;
+
+    while (x < y)
+    {
+        if (f >= 0)
+        {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        
+        x++;
+        ddF_x += 2;
+        f += ddF_x;
+
+        if (cornername & 0x1)
+        {
+            Canvas_Draw_VLine(x0 + x, y0 - y, y0 - y + 2 * y + 1 + delta, color);
+            Canvas_Draw_VLine(x0 + y, y0 - x, y0 - x + 2 * x + 1 + delta, color);
+        }
+        
+        if (cornername & 0x2)
+        {
+            Canvas_Draw_VLine(x0 - x, y0 - y, y0 - y + 2 * y + 1 + delta, color);
+            Canvas_Draw_VLine(x0 - y, y0 - x, y0 - x + 2 * x + 1 + delta, color);
+        }
+    }
+}
+
+void Canvas_Draw_Round_Rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t r, uint16_t color)
+{
+    uint16_t x2 = (w - 2 * r) + (x + r);
+    Canvas_Draw_HLine(x + r, x2, y, color); // Top
+    Canvas_Draw_HLine(x + r, x2, y + h - 1, color); // Bottom
+
+    uint16_t y2 = (h - 2 * r) + (y + r);
+    Canvas_Draw_VLine(x, y + r, y2, color); // Left
+    Canvas_Draw_VLine(x + w - 1, y + r, y2, color); // Right
+
+    // draw four corners
+    Canvas_Draw_Rounded_Corner(x + r, y + r, r, 1, color);
+    Canvas_Draw_Rounded_Corner(x + w - r - 1, y + r, r, 2, color);
+    Canvas_Draw_Rounded_Corner(x + w - r - 1, y + h - r - 1, r, 4, color);
+    Canvas_Draw_Rounded_Corner(x + r, y + h - r - 1, r, 8, color);
+}
+
+void Canvas_Fill_Round_Rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t r, uint16_t color)
+{
+  // smarter version
+  Canvas_Fill_Rect(x + r, y, w - 2 * r, h, color);
+  // draw four corners
+  Canvas_Fill_Circle_Helper(x + w - r - 1, y + r, r, 1, h - 2 * r - 1, color);
+  Canvas_Fill_Circle_Helper(x + r        , y + r, r, 2, h - 2 * r - 1, color);
+}
+
 uint16_t Canvas_RGB_To_GBRG(uint16_t r, uint16_t g, uint16_t b)
 {
     r = r * 32 / 256;
@@ -307,6 +435,184 @@ uint16_t Canvas_RGB_To_GBRG(uint16_t r, uint16_t g, uint16_t b)
     return 0;
 }
 
+float Canvas_Sin(float angle)
+{
+	int index = angle / (TAU / CIRCLE_STEPS);
+	return sinus[index];
+}
+
+float Canvas_Cos(float angle)
+{
+	int index = angle / (TAU / CIRCLE_STEPS);
+	return cosinus[index];
+}
+
 void Canvas_Init()
 {
+	float a = 0;
+
+	for (int i = 0; i < CIRCLE_STEPS; ++i)
+	{
+		a += TAU / CIRCLE_STEPS;
+		sinus[i] = sin(a);
+		cosinus[i] = cos(a);
+	}
+}
+
+/********************************/
+#define NOT_DRAWN 0
+#define STARTS_HERE 1
+#define ALL_DRAWN 2
+#define ENDS_HERE 3
+#define STARTS_ENDS_HERE 4
+
+//Radian to degree conversion value.
+#define R_TO_D 57.29578
+
+int arc_sector[8];
+
+void PositiveSectorPoint (int16_t x, int16_t y, int16_t s, int16_t sp, int16_t ep, uint16_t color)
+{
+    if (arc_sector[s] == NOT_DRAWN) return;
+
+    if (arc_sector[s] == ALL_DRAWN)
+    {
+        //draw all points of this sector
+        canvas_data[INDEX(x, y)] = color;
+        return;
+    }
+
+    if (arc_sector[s] == STARTS_HERE)
+    {
+        //draw all points flowing to right
+        if (x >=sp)
+        {
+            canvas_data[INDEX(x, y)] = color;
+            return;
+        }
+    }
+
+    if (arc_sector[s] == ENDS_HERE)
+    {
+        //draw all points flowing from left
+        if (x <= ep)
+        {
+            canvas_data[INDEX(x, y)] = color;
+            return;
+        }
+    }
+
+    if (arc_sector[s] == STARTS_ENDS_HERE) 
+    {
+        //fill only sections of this sector. 
+        if ((x >= sp) && (x <= ep))
+        {
+            canvas_data[INDEX(x, y)] = color;
+        }
+    }
+}
+
+void NegativeSectorPoint(int16_t x, int16_t y, int16_t s, int16_t sp, int16_t ep, uint16_t color)
+{
+    if (arc_sector[s] == NOT_DRAWN) return;
+    if (arc_sector[s] == ALL_DRAWN)
+    {
+        //Draw all points in this sector
+        canvas_data[INDEX(x, y)] = color;
+        return;
+    }
+
+    if (arc_sector[s] == STARTS_HERE)
+    {
+        //Draw all points flowing to the left
+        if (x <= sp)
+        {
+            canvas_data[INDEX(x, y)] = color;
+            return;
+        }
+    }
+
+    if (arc_sector[s] == ENDS_HERE)
+    {
+        //Draw all points flowing from the right
+        if (x >= ep)
+        {
+            canvas_data[INDEX(x, y)] = color;
+            return;
+        }
+    }
+
+    if (arc_sector[s] == STARTS_ENDS_HERE)
+    {
+        //fill only sections of this sector.
+        if ((x >= ep) && (x <= sp))
+        {
+            canvas_data[INDEX(x, y)] = color;
+        }
+    }
+}
+
+// sa : start angle in degrees
+// ea : end angle in degrees
+void Canvas_Draw_Arc(int16_t xc, int16_t yc, int16_t sa, int16_t ea, int16_t r, uint16_t color)
+{
+    int16_t start_sector,end_sector;
+    int16_t i;
+    int16_t x, y;
+    int16_t ep, sp, d;
+    
+    //Clear all the arc sector flags,
+    for (i = 0; i< 8; i++)
+    {
+        arc_sector[i] = NOT_DRAWN;
+    }
+    
+    //Calculate the start and end Arc sectors
+    start_sector = sa / 45;
+    end_sector = ea / 45;
+    if (start_sector == end_sector)
+    {
+        arc_sector[start_sector] = STARTS_ENDS_HERE;
+    }
+    else
+    {
+        for (i = start_sector; i < end_sector; i++)
+        {
+            arc_sector[i] = ALL_DRAWN; 
+        }
+
+        arc_sector[start_sector] = STARTS_HERE; 
+        arc_sector[end_sector] = ENDS_HERE;
+    }
+
+    /*''Calculate the Start and End Points*/
+    /*''Calculate points in first sector and translate*/ 
+    x = 0; y = r;
+    sp = ((double)xc + (double)r * cos((double)sa/R_TO_D));
+    ep = ((double)xc + (double)r * cos((double)ea/R_TO_D));
+    d = 2 * (1 - r);
+    while (y > x)
+    {
+        NegativeSectorPoint(xc + y, yc + x, 0, sp, ep, color);
+        NegativeSectorPoint(xc + x, yc + y, 1, sp, ep, color);
+        NegativeSectorPoint(xc - x, yc + y, 2, sp, ep, color);
+        NegativeSectorPoint(xc - y, yc + x, 3, sp, ep, color);
+        PositiveSectorPoint(xc - y, yc - x, 4, sp, ep, color);
+        PositiveSectorPoint(xc - x, yc - y, 5, sp, ep, color);
+        PositiveSectorPoint(xc + x, yc - y, 6, sp, ep, color);
+        PositiveSectorPoint(xc + y, yc - x, 7, sp, ep, color);
+        if (d + y > 0)
+        {
+            y = y - 1;
+            d = d - 2 * y + 1;
+        }
+        else
+        {
+            if (x > d)
+            {
+                x = x + 1;
+                d = d + 2 * x + 1;
+            }
+        }
+    }
 }

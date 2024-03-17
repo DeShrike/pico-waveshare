@@ -45,6 +45,10 @@ typedef struct {
 #define CANVAS_WIDTH	DEVICE_WIDTH
 #define CANVAS_HEIGHT	DEVICE_HEIGHT
 
+#define CIRCLE_STEPS	180
+#define PI				3.141592654
+#define TAU				(PI * 2.0)
+
 #define RGB2GBRG(r, g, b) ((((r) * 32 / 256) & 0x001F) << 3) |  \
                           ((((b) * 32 / 256) & 0x001F) << 8) |  \
                           ((((g) * 64 / 256) & 0x0007) << 13) | \
@@ -96,23 +100,30 @@ void Canvas_Init();
 void Canvas_Clear();
 void Canvas_Flush();
 
+float Canvas_Sin(float angle);
+float Canvas_Cos(float angle);
+
 void Canvas_Set_Pixel(uint16_t x, uint16_t y, uint16_t color);
 
 void Canvas_Fill_Rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
 void Canvas_Fill_Rect_R(rect_t* area, uint16_t color);
 void Canvas_Draw_Rect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
+void Canvas_Draw_Round_Rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t r, uint16_t color);
+void Canvas_Fill_Round_Rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t r, uint16_t color);
 
 void Canvas_Write_Ascii(const char* str, uint16_t x, uint16_t y, uint16_t fgcolor, uint16_t bgcolor);
 void Canvas_Write_Ascii_Centered(const char* str, uint16_t x, uint16_t y, uint16_t fgcolor, uint16_t bgcolor);
 uint16_t Canvas_Ascii_Width(const char* str);
 uint16_t Canvas_Ascii_Height(const char* str);
 
-void Canvas_Draw_HLine(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color);
+void Canvas_Draw_HLine(uint16_t x1, uint16_t y2, uint16_t y, uint16_t color);
 void Canvas_Draw_VLine(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color);
 void Canvas_Draw_Line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
 
 void Canvas_Draw_Circle(uint16_t xc, uint16_t yc, uint16_t r, uint16_t color);
 void Canvas_Fill_Circle(uint16_t xc, uint16_t yc, uint16_t r, uint16_t color);
+
+void Canvas_Draw_Arc(int16_t xc, int16_t yc, int16_t sa, int16_t ea, int16_t r, uint16_t color);
 
 //uint16_t Canvas_RGB_To_GBRG(uint16_t r, uint16_t g, uint16_t b);
 
