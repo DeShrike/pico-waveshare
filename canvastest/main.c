@@ -426,12 +426,18 @@ void draw(void)
         uint16_t dark = RGB2GBRG(24, 24, 24);
         uint16_t r = 100;
         uint16_t thick = 10;
+
+        Canvas_Draw_Thick_Circle(cx, cy, r, thick, dark);
+        Canvas_Draw_Thick_Circle(cx, cy, r - 20, thick, dark);
+        Canvas_Draw_Thick_Circle(cx, cy, r - 40, thick, dark);
+
         Canvas_Draw_Thick_Arc(cx, cy, r, 0, counter91, thick, EMERALD);
         Canvas_Draw_Thick_Arc(cx, cy, r - 20, 0, counter92, thick, ORANGE);
         Canvas_Draw_Thick_Arc(cx, cy, r - 40, 0, counter93, thick, STEEL);
 
-        float w = 60;
-        float h = 50;
+        float w = 55;
+        float h = 49;
+
         //Canvas_Fill_Round_Rect(cx - w / 2, cy - h / 2, w, h, 10, GRAY1);
         //Canvas_Draw_Round_Rect(cx - w / 2, cy - h / 2, w, h, 10, GRAY);
         Canvas_Fill_Rect(cx - w / 2 + 10, cy - h / 2 + 10, w, h, dark);

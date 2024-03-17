@@ -588,8 +588,8 @@ void Canvas_Draw_Arc(int16_t xc, int16_t yc, int16_t sa, int16_t ea, int16_t r, 
     /*''Calculate the Start and End Points*/
     /*''Calculate points in first sector and translate*/ 
     x = 0; y = r;
-    sp = ((double)xc + (double)r * cos((double)sa/R_TO_D));
-    ep = ((double)xc + (double)r * cos((double)ea/R_TO_D));
+    sp = ((double)xc + (double)r * cos((double)sa / R_TO_D));
+    ep = ((double)xc + (double)r * cos((double)ea / R_TO_D));
     d = 2 * (1 - r);
     while (y > x)
     {
@@ -619,7 +619,7 @@ void Canvas_Draw_Arc(int16_t xc, int16_t yc, int16_t sa, int16_t ea, int16_t r, 
 
 /***********************************/
 
-uint16_t BSP_LCD_FastAtan2(int16_t x, int16_t y)
+uint16_t fast_atan2(int16_t x, int16_t y)
 {
     // Fast XY vector to integer degree algorithm - Jan 2011 www.RomanBlack.com
     // Converts any XY values including 0 to a degree value that should be
@@ -717,83 +717,82 @@ uint16_t BSP_LCD_FastAtan2(int16_t x, int16_t y)
     return degree;
 }
 
-void Canvas_Draw_Thick_Arc(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, uint16_t startAngle, uint16_t endAngle, uint16_t lineThickness, uint16_t color)
+void Canvas_Draw_Thick_Arc(uint16_t x, uint16_t y, uint16_t r, uint16_t startAngle, uint16_t endAngle, uint16_t lineThickness, uint16_t color)
 {
-    Radius += (lineThickness / 2);
-    uint16_t Radius2 = Radius - lineThickness;
+    r += (lineThickness / 2);
+    uint16_t r2 = r - lineThickness;
     int16_t deg;
 
-    deg = BSP_LCD_FastAtan2(-Radius, 0);
+    deg = fast_atan2(-r, 0);
     if ((deg >= startAngle) && (deg <= endAngle))
     {
         // Left Middle
-        Canvas_Draw_HLine(Xpos - Radius + 1, Xpos - Radius + 1 + lineThickness, Ypos, color);
+        Canvas_Draw_HLine(x - r + 1, x - r + 1 + lineThickness, y, color);
     }
 
-    deg = BSP_LCD_FastAtan2(Radius2, 0);
+    deg = fast_atan2(r2, 0);
     if ((deg >= startAngle) && (deg <= endAngle))
     {
         // Right Middle
-        Canvas_Draw_HLine(Xpos + Radius2, Xpos + Radius2 + lineThickness, Ypos, color);
+        Canvas_Draw_HLine(x + r2, x + r2 + lineThickness, y, color);
     }
 
-    deg = BSP_LCD_FastAtan2(0, -Radius);
+    deg = fast_atan2(0, -r);
     if ((deg >= startAngle) && (deg <= endAngle))
     {
         // Top Middle
-        Canvas_Draw_VLine(Xpos, Ypos - Radius + 1, Ypos - Radius + 1 + lineThickness, color);
+        Canvas_Draw_VLine(x, y - r + 1, y - r + 1 + lineThickness, color);
     }
 
-    deg = BSP_LCD_FastAtan2(0, Radius2);
+    deg = fast_atan2(0, r2);
     if ((deg >= startAngle) && (deg <= endAngle))
     {
         // Bottom middle
-        Canvas_Draw_VLine(Xpos, Ypos + Radius2, Ypos + Radius2 + lineThickness, color);
+        Canvas_Draw_VLine(x, y + r2, y + r2 + lineThickness, color);
     }
 
-    uint32_t RR = Radius * Radius;
-    uint32_t R2R2 = Radius2 * Radius2;
-    for(int16_t y = -Radius; y < 0; y++)
+    uint32_t RR = r * r;
+    uint32_t R2R2 = r2 * r2;
+    for(int16_t yy = -r; yy < 0; yy++)
     {
-        for (int16_t x = -Radius; x < 0; x++)
+        for (int16_t xx = -r; xx < 0; xx++)
         {
-            uint32_t r2 = x * x + y * y;
-            if ((r2 <= RR) && (r2 >= R2R2))
+            uint32_t rr2 = xx * xx + yy * yy;
+            if ((rr2 <= RR) && (rr2 >= R2R2))
             {
-                deg = BSP_LCD_FastAtan2(x, y);
+                deg = fast_atan2(xx, yy);
                 if ((deg >= startAngle) && (deg <= endAngle))
                 {
-                    canvas_data[INDEX(Xpos + x, Ypos + y)] = color;
+                    canvas_data[INDEX(x + xx, y + yy)] = color;
                 }
-                
-                deg = BSP_LCD_FastAtan2(x, -y);
+
+                deg = fast_atan2(xx, -yy);
                 if ((deg >= startAngle) && (deg <= endAngle))
                 {
-                    canvas_data[INDEX(Xpos + x, Ypos - y)] = color;
+                    canvas_data[INDEX(x + xx, y - yy)] = color;
                 }
-                
-                deg = BSP_LCD_FastAtan2(-x, y);
+
+                deg = fast_atan2(-xx, yy);
                 if ((deg >= startAngle) && (deg <= endAngle))
                 {
-                    canvas_data[INDEX(Xpos - x, Ypos + y)] = color;
+                    canvas_data[INDEX(x - xx, y + yy)] = color;
                 }
-                
-                deg = BSP_LCD_FastAtan2(-x, -y);
+
+                deg = fast_atan2(-xx, -yy);
                 if ((deg >= startAngle) && (deg <= endAngle))
                 {
-                    canvas_data[INDEX(Xpos - x, Ypos - y)] = color;
+                    canvas_data[INDEX(x - xx, y - yy)] = color;
                 }
             }
         }
     }
 }
 
-/* TODO TODO TODO TODO TODO TODO TODO 
-https://github.com/lvgl/lvgl/issues/252
-void BSP_LCD_DrawThickCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, uint16_t lineThickness)
+void Canvas_Draw_Thick_Circle(uint16_t x, uint16_t y, uint16_t r, uint16_t lineThickness, uint16_t color)
 {
-    Radius += (lineThickness/2);
-    uint16_t Radius2 = Radius - lineThickness;
+    // https://github.com/lvgl/lvgl/issues/252
+    r += (lineThickness / 2);
+    uint16_t r2 = r - lineThickness;
 
     uint16_t xo[256];
     uint16_t xi[256];
@@ -802,9 +801,9 @@ void BSP_LCD_DrawThickCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, uint
     uint32_t  CurX; // Current X Value
     uint32_t  CurY; // Current Y Value
 
-    D = 3 - (Radius << 1);
+    D = 3 - (r << 1);
     CurX = 0;
-    CurY = Radius;
+    CurY = r;
 
     int iterations = 0;
 
@@ -814,13 +813,19 @@ void BSP_LCD_DrawThickCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, uint
         xo[CurX] = CurY;
         xo[CurY] = CurX;
         if (iterations < CurX)
+        {
             iterations = CurX;
+        }
+        
         if (iterations < CurY)
+        {
             iterations = CurY;
-        xi[CurX*2] = 0;
-        xi[CurY*2] = 0;
-        xi[CurX*2+1] = 0;
-        xi[CurY*2+1] = 0;
+        }
+        
+        xi[CurX * 2] = 0;
+        xi[CurY * 2] = 0;
+        xi[CurX * 2 + 1] = 0;
+        xi[CurY * 2 + 1] = 0;
 
         if (D < 0)
         {
@@ -831,12 +836,13 @@ void BSP_LCD_DrawThickCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, uint
             D += ((CurX - CurY) << 2) + 10;
             CurY--;
         }
+        
         CurX++;
     }
 
-    D = 3 - (Radius2 << 1);
+    D = 3 - (r2 << 1);
     CurX = 0;
-    CurY = Radius2;
+    CurY = r2;
 
     // Calculate inner circle
     while (CurX <= CurY)
@@ -853,23 +859,24 @@ void BSP_LCD_DrawThickCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, uint
             D += ((CurX - CurY) << 2) + 10;
             CurY--;
         }
+        
         CurX++;
     }
 
     // Draw horizontal lines
-    for (int y = 0; y <= iterations; y++)
+    for (int yy = 0; yy <= iterations; yy++)
     {
-        if (xi[y] != 0) {
-            BSP_LCD_DrawHLine(Xpos + xi[y], Ypos - y, xo[y] - xi[y]);
-            BSP_LCD_DrawHLine(Xpos - xo[y], Ypos - y, xo[y] - xi[y]);
-            BSP_LCD_DrawHLine(Xpos + xi[y], Ypos + y, xo[y] - xi[y]);
-            BSP_LCD_DrawHLine(Xpos - xo[y], Ypos + y, xo[y] - xi[y]);
+        if (xi[yy] != 0)
+        {
+            Canvas_Draw_HLine(x + xi[yy], x + xo[yy], y - yy, color);
+            Canvas_Draw_HLine(x - xo[yy], x - xi[yy], y - yy, color);
+            Canvas_Draw_HLine(x + xi[yy], x + xo[yy], y + yy, color);
+            Canvas_Draw_HLine(x - xo[yy], x - xi[yy], y + yy, color);
         }
         else
         {
-            BSP_LCD_DrawHLine(Xpos - xo[y], Ypos - y, xo[y] + xo[y]);
-            BSP_LCD_DrawHLine(Xpos - xo[y], Ypos + y, xo[y] + xo[y]);
+            Canvas_Draw_HLine(x - xo[yy], x + xo[yy], y - yy, color);
+            Canvas_Draw_HLine(x - xo[yy], x + xo[yy], y + yy, color);
         }
     }
 }
-*/
