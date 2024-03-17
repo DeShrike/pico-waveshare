@@ -17,6 +17,10 @@ uint16_t tx = CANVAS_WIDTH / 2;
 uint16_t ty = CANVAS_HEIGHT / 2;
 bool stopped = false;
 
+uint16_t counter91 = 0;
+uint16_t counter92 = 0;
+uint16_t counter93 = 0;
+
 uint16_t angle1 = 0;
 uint16_t angle2 = 0;
 uint16_t angle3 = 0;
@@ -243,18 +247,18 @@ void update(void)
 
     if (screen == 9)
     {
-        angle1 += 6;
-        if (angle1 > 360)
+        counter91 += 6;
+        if (counter91 > 360)
         {
-            angle1 = 0;
-            angle2 += 6;
-            if (angle2 > 360)
+            counter91 = 0;
+            counter92 += 6;
+            if (counter92 > 360)
             {
-                angle2 = 0;
-                angle3 += 6;
-                if (angle3 > 360)
+                counter92 = 0;
+                counter93 += 6;
+                if (counter93 > 360)
                 {
-                    angle3 = 0;
+                    counter93 = 0;
                 }
             }
         }
@@ -422,16 +426,11 @@ void draw(void)
         uint16_t dark = RGB2GBRG(24, 24, 24);
         uint16_t r = 100;
         uint16_t thick = 10;
-        Canvas_Draw_Thick_Arc(cx, cy, r, 0, angle1, thick, EMERALD);
-        Canvas_Draw_Thick_Arc(cx, cy, r - 20, 0, angle2, thick, ORANGE);
-        Canvas_Draw_Thick_Arc(cx, cy, r - 40, 0, angle3, thick, STEEL);
+        Canvas_Draw_Thick_Arc(cx, cy, r, 0, counter91, thick, EMERALD);
+        Canvas_Draw_Thick_Arc(cx, cy, r - 20, 0, counter92, thick, ORANGE);
+        Canvas_Draw_Thick_Arc(cx, cy, r - 40, 0, counter93, thick, STEEL);
 
-/*        for (uint16_t i = r - thick; i <= r + thick; ++i)
-        {
-            Canvas_Draw_Arc(cx, cy, 0, angle1, i, EMERALD);
-        }*/
-
-        float w = 70;
+        float w = 60;
         float h = 50;
         //Canvas_Fill_Round_Rect(cx - w / 2, cy - h / 2, w, h, 10, GRAY1);
         //Canvas_Draw_Round_Rect(cx - w / 2, cy - h / 2, w, h, 10, GRAY);
@@ -439,7 +438,7 @@ void draw(void)
         Canvas_Fill_Rect(cx - w / 2, cy - h / 2, w, h, GRAY1);
 
         char temp[20];
-        sprintf(temp, "%d", angle1 / 6);
+        sprintf(temp, "%d", counter91 / 6);
         Canvas_Write_Ascii_Centered(temp, cx, cy, YELLOW, BLACK);
     }
 }
