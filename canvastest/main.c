@@ -4,9 +4,9 @@
 #include "canvas.h"
 
 uint16_t colors[] = { 
-        BLACK, WHITE, BLUE, LIME, GREEN, EMERALD, TEAL, CYAN,
         COBALT, INDIGO, VIOLET, PINK, MAGENTA, CRIMSON, RED,
-        ORANGE, YELLOW, BROWN, OLIVE, STEEL, MAUVE, TAUPE, GRAY1, GRAY2, GRAY3 };
+        EMERALD, BROWN, BLACK, WHITE, BLUE, LIME, GREEN, TEAL, CYAN,
+        ORANGE, YELLOW, OLIVE, STEEL, MAUVE, TAUPE, GRAY1, GRAY2, GRAY3 };
 int color_count = sizeof(colors) / sizeof(colors[0]);
 
 input_t touch;
@@ -21,16 +21,9 @@ uint16_t counter91 = 0;
 uint16_t counter92 = 0;
 uint16_t counter93 = 0;
 
-uint16_t angle1 = 0;
-uint16_t angle2 = 0;
-uint16_t angle3 = 0;
-uint16_t angle4 = 0;
-uint16_t angle5 = 0;
-uint16_t anglestep1 = 10;
-uint16_t anglestep2 = 8;
-uint16_t anglestep3 = 6;
-uint16_t anglestep4 = 4;
-uint16_t anglestep5 = 2;
+#define ARC_COUNT   9
+uint16_t arc_angle[ARC_COUNT] = { 0 };
+uint16_t arc_step[ARC_COUNT] = { 18, 16, 14, 12, 10, 8, 6, 4, 2 };
 
 #define SCREEN_COUNT   10
 int screen = 0;
@@ -214,34 +207,13 @@ void update(void)
 
     if (screen == 8)
     {
-        angle1 += anglestep1;
-        angle2 += anglestep2;
-        angle3 += anglestep3;
-        angle4 += anglestep4;
-        angle5 += anglestep5;
-        if (angle1 > 360)
+        for (int i = 0; i < ARC_COUNT; ++i)
         {
-            angle1 = 0;
-        }
-
-        if (angle2 > 360)
-        {
-            angle2 = 0;
-        }
-
-        if (angle3 > 360)
-        {
-            angle3 = 0;
-        }
-
-        if (angle4 > 360)
-        {
-            angle4 = 0;
-        }
-
-        if (angle5 > 360)
-        {
-            angle5 = 0;
+            arc_angle[i] += arc_step[i];
+            if (arc_angle[i] > 360)
+            {
+                arc_angle[i] = 0;
+            }
         }
     } // Screen 8
 
@@ -401,22 +373,19 @@ void draw(void)
         Canvas_Draw_Round_Rect(50, 50, 150, 145, 20, RED);
         Canvas_Draw_Round_Rect(70, 100, 70, 70, 30, YELLOW);
         Canvas_Draw_Circle(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH / 3, COBALT);
+        Canvas_Draw_Arc(100, 100, 45, 180, 50, EMERALD);
     }
     else if (screen == 8)
     {
         uint16_t cx = CANVAS_WIDTH / 2;
         uint16_t cy = CANVAS_HEIGHT / 2;
 
-        float r = 110;
-        Canvas_Draw_Arc(cx, cy, 0, angle1, r, INDIGO);
-        r -= 10;
-        Canvas_Draw_Arc(cx, cy, 0, angle2, r, ORANGE);
-        r -= 10;
-        Canvas_Draw_Arc(cx, cy, 0, angle3, r, GREEN);
-        r -= 10;
-        Canvas_Draw_Arc(cx, cy, 0, angle4, r, PINK);
-        r -= 10;
-        Canvas_Draw_Arc(cx, cy, 0, angle5, r, BROWN);
+        float r = 115;
+        for (int i = 0; i < ARC_COUNT; ++i)
+        {
+            Canvas_Draw_Arc(cx, cy, 0, arc_angle[i], r, colors[i]);
+            r -= 10;
+        }
     }
     else if (screen == 9)
     {
