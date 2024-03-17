@@ -616,3 +616,260 @@ void Canvas_Draw_Arc(int16_t xc, int16_t yc, int16_t sa, int16_t ea, int16_t r, 
         }
     }
 }
+
+/***********************************/
+
+uint16_t BSP_LCD_FastAtan2(int16_t x, int16_t y)
+{
+    // Fast XY vector to integer degree algorithm - Jan 2011 www.RomanBlack.com
+    // Converts any XY values including 0 to a degree value that should be
+    // within +/- 1 degree of the accurate value without needing
+    // large slow trig functions like ArcTan() or ArcCos().
+    // NOTE! at least one of the X or Y values must be non-zero!
+    // This is the full version, for all 4 quadrants and will generate
+    // the angle in integer degrees from 0-360.
+    // Any values of X and Y are usable including negative values provided
+    // they are between -1456 and 1456 so the 16bit multiply does not overflow.
+
+    unsigned char negflag;
+    unsigned char tempdegree;
+    unsigned char comp;
+    unsigned int degree;     // this will hold the result
+    //signed int x;            // these hold the XY vector at the start
+    //signed int y;            // (and they will be destroyed)
+    unsigned int ux;
+    unsigned int uy;
+
+    // Save the sign flags then remove signs and get XY as unsigned ints
+    negflag = 0;
+    if (x < 0)
+    {
+        negflag += 0x01;    // x flag bit
+        x = (0 - x);        // is now +
+    }
+
+    ux = x;                // copy to unsigned var before multiply
+    if (y < 0)
+    {
+        negflag += 0x02;    // y flag bit
+        y = (0 - y);        // is now +
+    }
+    
+    uy = y;                // copy to unsigned var before multiply
+
+    // 1. Calc the scaled "degrees"
+    if (ux > uy)
+    {
+        degree = (uy * 45) / ux;   // degree result will be 0-45 range
+        negflag += 0x10;    // octant flag bit
+    }
+    else
+    {
+        degree = (ux * 45) / uy;   // degree result will be 0-45 range
+    }
+
+    // 2. Compensate for the 4 degree error curve
+    comp = 0;
+    tempdegree = degree;    // use an unsigned char for speed!
+
+    if (tempdegree > 22)      // if top half of range
+    {
+        if (tempdegree <= 44) comp++;
+        if (tempdegree <= 41) comp++;
+        if (tempdegree <= 37) comp++;
+        if (tempdegree <= 32) comp++;  // max is 4 degrees compensated
+    }
+    else    // else is lower half of range
+    {
+        if (tempdegree >= 2) comp++;
+        if (tempdegree >= 6) comp++;
+        if (tempdegree >= 10) comp++;
+        if (tempdegree >= 15) comp++;  // max is 4 degrees compensated
+    }
+
+    degree += comp;   // degree is now accurate to +/- 1 degree!
+
+    // Invert degree if it was X>Y octant, makes 0-45 into 90-45
+    if (negflag & 0x10) degree = (90 - degree);
+
+    // 3. Degree is now 0-90 range for this quadrant,
+    // need to invert it for whichever quadrant it was in
+    if (negflag & 0x02)   // if -Y
+    {
+        if (negflag & 0x01)   // if -Y -X
+        {
+            degree = (180 + degree);
+        }
+        else
+        {
+            // else is -Y +X
+            degree = (180 - degree);
+        }
+    }
+    else    // else is +Y
+    {
+        if (negflag & 0x01)   // if +Y -X
+        {
+            degree = (360 - degree);
+        }
+    }
+
+    return degree;
+}
+
+void Canvas_Draw_Thick_Arc(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, uint16_t startAngle, uint16_t endAngle, uint16_t lineThickness, uint16_t color)
+{
+    Radius += (lineThickness / 2);
+    uint16_t Radius2 = Radius - lineThickness;
+    int16_t deg;
+
+    deg = BSP_LCD_FastAtan2(-Radius, 0);
+    if ((deg >= startAngle) && (deg <= endAngle))
+    {
+        // Left Middle
+        Canvas_Draw_HLine(Xpos - Radius + 1, Xpos - Radius + 1 + lineThickness, Ypos, color);
+    }
+
+    deg = BSP_LCD_FastAtan2(Radius2, 0);
+    if ((deg >= startAngle) && (deg <= endAngle))
+    {
+        // Right Middle
+        Canvas_Draw_HLine(Xpos + Radius2, Xpos + Radius2 + lineThickness, Ypos, color);
+    }
+
+    deg = BSP_LCD_FastAtan2(0, -Radius);
+    if ((deg >= startAngle) && (deg <= endAngle))
+    {
+        // Top Middle
+        Canvas_Draw_VLine(Xpos, Ypos - Radius + 1, Ypos - Radius + 1 + lineThickness, color);
+    }
+
+    deg = BSP_LCD_FastAtan2(0, Radius2);
+    if ((deg >= startAngle) && (deg <= endAngle))
+    {
+        // Bottom middle
+        Canvas_Draw_VLine(Xpos, Ypos + Radius2, Ypos + Radius2 + lineThickness, color);
+    }
+
+    uint32_t RR = Radius * Radius;
+    uint32_t R2R2 = Radius2 * Radius2;
+    for(int16_t y = -Radius; y < 0; y++)
+    {
+        for (int16_t x = -Radius; x < 0; x++)
+        {
+            uint32_t r2 = x * x + y * y;
+            if ((r2 <= RR) && (r2 >= R2R2))
+            {
+                deg = BSP_LCD_FastAtan2(x, y);
+                if ((deg >= startAngle) && (deg <= endAngle))
+                {
+                    canvas_data[INDEX(Xpos + x, Ypos + y)] = color;
+                }
+                
+                deg = BSP_LCD_FastAtan2(x, -y);
+                if ((deg >= startAngle) && (deg <= endAngle))
+                {
+                    canvas_data[INDEX(Xpos + x, Ypos - y)] = color;
+                }
+                
+                deg = BSP_LCD_FastAtan2(-x, y);
+                if ((deg >= startAngle) && (deg <= endAngle))
+                {
+                    canvas_data[INDEX(Xpos - x, Ypos + y)] = color;
+                }
+                
+                deg = BSP_LCD_FastAtan2(-x, -y);
+                if ((deg >= startAngle) && (deg <= endAngle))
+                {
+                    canvas_data[INDEX(Xpos - x, Ypos - y)] = color;
+                }
+            }
+        }
+    }
+}
+
+/* TODO TODO TODO TODO TODO TODO TODO 
+https://github.com/lvgl/lvgl/issues/252
+void BSP_LCD_DrawThickCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, uint16_t lineThickness)
+{
+    Radius += (lineThickness/2);
+    uint16_t Radius2 = Radius - lineThickness;
+
+    uint16_t xo[256];
+    uint16_t xi[256];
+
+    int32_t   D;    // Decision Variable
+    uint32_t  CurX; // Current X Value
+    uint32_t  CurY; // Current Y Value
+
+    D = 3 - (Radius << 1);
+    CurX = 0;
+    CurY = Radius;
+
+    int iterations = 0;
+
+    // Calculate outer circle
+    while (CurX <= CurY)
+    {
+        xo[CurX] = CurY;
+        xo[CurY] = CurX;
+        if (iterations < CurX)
+            iterations = CurX;
+        if (iterations < CurY)
+            iterations = CurY;
+        xi[CurX*2] = 0;
+        xi[CurY*2] = 0;
+        xi[CurX*2+1] = 0;
+        xi[CurY*2+1] = 0;
+
+        if (D < 0)
+        {
+            D += (CurX << 2) + 6;
+        }
+        else
+        {
+            D += ((CurX - CurY) << 2) + 10;
+            CurY--;
+        }
+        CurX++;
+    }
+
+    D = 3 - (Radius2 << 1);
+    CurX = 0;
+    CurY = Radius2;
+
+    // Calculate inner circle
+    while (CurX <= CurY)
+    {
+        xi[CurX] = CurY;
+        xi[CurY] = CurX;
+
+        if (D < 0)
+        {
+            D += (CurX << 2) + 6;
+        }
+        else
+        {
+            D += ((CurX - CurY) << 2) + 10;
+            CurY--;
+        }
+        CurX++;
+    }
+
+    // Draw horizontal lines
+    for (int y = 0; y <= iterations; y++)
+    {
+        if (xi[y] != 0) {
+            BSP_LCD_DrawHLine(Xpos + xi[y], Ypos - y, xo[y] - xi[y]);
+            BSP_LCD_DrawHLine(Xpos - xo[y], Ypos - y, xo[y] - xi[y]);
+            BSP_LCD_DrawHLine(Xpos + xi[y], Ypos + y, xo[y] - xi[y]);
+            BSP_LCD_DrawHLine(Xpos - xo[y], Ypos + y, xo[y] - xi[y]);
+        }
+        else
+        {
+            BSP_LCD_DrawHLine(Xpos - xo[y], Ypos - y, xo[y] + xo[y]);
+            BSP_LCD_DrawHLine(Xpos - xo[y], Ypos + y, xo[y] + xo[y]);
+        }
+    }
+}
+*/

@@ -243,10 +243,20 @@ void update(void)
 
     if (screen == 9)
     {
-        angle1 += 1;
+        angle1 += 6;
         if (angle1 > 360)
         {
             angle1 = 0;
+            angle2 += 6;
+            if (angle2 > 360)
+            {
+                angle2 = 0;
+                angle3 += 6;
+                if (angle3 > 360)
+                {
+                    angle3 = 0;
+                }
+            }
         }
     } // Screen 9
 }
@@ -409,21 +419,27 @@ void draw(void)
         uint16_t cx = CANVAS_WIDTH / 2;
         uint16_t cy = CANVAS_HEIGHT / 2;
 
-        //uint16_t gray = RGB2GBRG(24, 24, 25);
+        uint16_t dark = RGB2GBRG(24, 24, 24);
         uint16_t r = 100;
-        uint16_t thick = 0;
-        for (uint16_t i = r - thick; i <= r + thick; ++i)
+        uint16_t thick = 10;
+        Canvas_Draw_Thick_Arc(cx, cy, r, 0, angle1, thick, EMERALD);
+        Canvas_Draw_Thick_Arc(cx, cy, r - 20, 0, angle2, thick, ORANGE);
+        Canvas_Draw_Thick_Arc(cx, cy, r - 40, 0, angle3, thick, STEEL);
+
+/*        for (uint16_t i = r - thick; i <= r + thick; ++i)
         {
             Canvas_Draw_Arc(cx, cy, 0, angle1, i, EMERALD);
-        }
+        }*/
 
-        float w = 100;
+        float w = 70;
         float h = 50;
-        Canvas_Fill_Round_Rect(cx - w / 2, cy - h / 2, w, h, 10, GRAY1);
-        Canvas_Draw_Round_Rect(cx - w / 2, cy - h / 2, w, h, 10, GRAY);
+        //Canvas_Fill_Round_Rect(cx - w / 2, cy - h / 2, w, h, 10, GRAY1);
+        //Canvas_Draw_Round_Rect(cx - w / 2, cy - h / 2, w, h, 10, GRAY);
+        Canvas_Fill_Rect(cx - w / 2 + 10, cy - h / 2 + 10, w, h, dark);
+        Canvas_Fill_Rect(cx - w / 2, cy - h / 2, w, h, GRAY1);
 
         char temp[20];
-        sprintf(temp, "%d", angle1);
+        sprintf(temp, "%d", angle1 / 6);
         Canvas_Write_Ascii_Centered(temp, cx, cy, YELLOW, BLACK);
     }
 }

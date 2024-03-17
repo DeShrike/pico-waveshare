@@ -116,7 +116,7 @@ void Canvas_Write_Ascii_Centered(const char* str, uint16_t x, uint16_t y, uint16
 uint16_t Canvas_Ascii_Width(const char* str);
 uint16_t Canvas_Ascii_Height(const char* str);
 
-void Canvas_Draw_HLine(uint16_t x1, uint16_t y2, uint16_t y, uint16_t color);
+void Canvas_Draw_HLine(uint16_t x1, uint16_t x2, uint16_t y, uint16_t color);
 void Canvas_Draw_VLine(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color);
 void Canvas_Draw_Line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
 
@@ -124,6 +124,7 @@ void Canvas_Draw_Circle(uint16_t xc, uint16_t yc, uint16_t r, uint16_t color);
 void Canvas_Fill_Circle(uint16_t xc, uint16_t yc, uint16_t r, uint16_t color);
 
 void Canvas_Draw_Arc(int16_t xc, int16_t yc, int16_t sa, int16_t ea, int16_t r, uint16_t color);
+void Canvas_Draw_Thick_Arc(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, uint16_t startAngle, uint16_t endAngle, uint16_t lineThickness, uint16_t color);
 
 //uint16_t Canvas_RGB_To_GBRG(uint16_t r, uint16_t g, uint16_t b);
 
