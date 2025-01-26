@@ -18,6 +18,7 @@ pico_set_program_version(matrix "0.1")
 target_link_libraries(matrix PRIVATE
         pico_stdlib
         hardware_spi
+        hardware_adc
 #        pico_audio_i2s
         )
 
