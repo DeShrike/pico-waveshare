@@ -212,7 +212,7 @@ void update(void)
             arc_angle[i] += arc_step[i];
             if (arc_angle[i] > 360)
             {
-                arc_angle[i] = 0;
+                arc_angle[i] -= 360;
             }
         }
     } // Screen 8
