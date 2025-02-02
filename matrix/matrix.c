@@ -38,6 +38,7 @@ typedef struct Pico7219 Pico7219;
 
 #define SENSOR_PIN 1
 
+int counter;
 // Draw a character to the library. Note that the width of the "virtual
 // display" can be much longer than the physical module chain, and
 // off-display elements can later be scrolled into view. However, it's
@@ -145,9 +146,10 @@ int main()
 
 		//uint adc_raw = (float)adc_read() * (float)ADC_CONVERT; // raw voltage from ADC
 		//draw_number(pico7219, adc_raw);
-		draw_number(pico7219, 2025);
+		draw_number(pico7219, counter);
         sleep_ms(500);
 
+		counter++;
 		pico7219_switch_off_all(pico7219, TRUE);
         sleep_ms(100);
     }
